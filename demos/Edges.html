@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Edges</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor("#dad0d0");
+      
+      var mesh = new DK.Mesh();
+      mesh.strokeColor = "#333d3d";
+      mesh.strokeWidth = 2;
+      
+      var xpos = -60, ypos = -400, zpos = -60;
+      
+      mesh.addVertex(xpos, ypos, zpos);
+      
+      for ( var p = 0; p < 40; p++ ) {
+        ypos += 20;
+        switch ( p % 4 ) {
+          case 0: xpos += 120; break;
+          case 1: zpos += 120; break;
+          case 2: xpos -= 120; break;
+          case 3: zpos -= 120; break;
+        }
+        
+        mesh.addVertex(xpos, ypos, zpos).addEdge();
+      }
+      
+      var container = new DK.Container();
+      container.addChild(mesh);
+      container.rotationX = 45;
+      container.rotationZ = 45;
+      engine.scene.addChild(container);
+      
+      mesh.step = function () { this.rotateY(1);};
+      
+      engine.start();
+    </script>
+  </body>
+</html>

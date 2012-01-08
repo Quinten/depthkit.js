@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cube</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      
+      var myObject = engine.scene.addChild(new DK.Cube(100));
+      myObject.step = function () { 
+        this.rotateX(3).rotateY(1); 
+      };
+      
+      engine.camera.step = function () {
+        this.tz += 1;
+      };
+      
+      engine.start();
+    </script>
+  </body>
+</html>

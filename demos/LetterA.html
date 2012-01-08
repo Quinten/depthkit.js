@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>LetterA</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      
+      var letterA = engine.scene.addChild(new DK.LetterA());
+      //letterA.step = function () { this.rotateX(2); };
+      letterA.rotateX(-45).rotateY(45);
+
+      engine.start();
+    </script>
+  </body>
+</html>

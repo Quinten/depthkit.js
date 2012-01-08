@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Containers</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor("#000000");
+      
+      var rootOrbitContainer = new DK.Container(0, 0, 0);
+      var cubeOrbitContainerX = new DK.Container(0, 0, 0);
+      var cubeOrbitContainerY = new DK.Container(0, 0, 0);
+      var cubeOrbitContainerZ = new DK.Container(180, 0, 0);
+      
+      var bigCube = new DK.Cube(60);
+      bigCube.applyFillcolor("#00679a");
+      bigCube.applyLight(engine.light);
+      
+      var smallCubeOne = new DK.Cube(20);
+      smallCubeOne.applyFillcolor("#fadcad");
+      smallCubeOne.applyLight(engine.light);
+      smallCubeOne.z = 90;
+      
+      var smallCubeTwo = new DK.Cube(20);
+      smallCubeTwo.applyFillcolor("#fadcad");
+      smallCubeTwo.applyLight(engine.light);
+      smallCubeTwo.z = -90;
+      
+      cubeOrbitContainerY.addChild(smallCubeOne);
+      cubeOrbitContainerY.addChild(smallCubeTwo);
+      cubeOrbitContainerZ.addChild(bigCube);
+      
+      cubeOrbitContainerX.addChild(cubeOrbitContainerY);
+      cubeOrbitContainerZ.addChild(cubeOrbitContainerX);
+      rootOrbitContainer.addChild(cubeOrbitContainerZ);
+      engine.scene.addChild(rootOrbitContainer);
+      
+      rootOrbitContainer.step = function () { this.spinZ(1); };
+      cubeOrbitContainerX.step = function () { this.rotateX(1); };
+      cubeOrbitContainerY.step = function () { this.rotateY(1); };
+      cubeOrbitContainerZ.step = function () { this.rotateZ(-1); };
+      
+      engine.light.brightness = 0.5;
+      engine.light.x = -100;
+      engine.light.y = -200;
+      engine.light.z = -100;
+      
+      engine.start();
+    </script>
+  </body>
+</html>

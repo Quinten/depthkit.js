@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>debug</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <!-- moppie en keppelie -->
+    <script src="../src/DepthKit.js"></script>
+    <script src="../src/core/Vertex.js"></script>
+    <script src="../src/core/Edge.js"></script>
+    <script src="../src/core/Face.js"></script>
+    <script src="../src/core/SceneObject.js"></script>
+    <script src="../src/core/Mesh.js"></script>
+    <script src="../src/core/Container.js"></script>
+    <script src="../src/core/Scene.js"></script>
+    <script src="../src/core/Camera.js"></script>
+    <script src="../src/core/Light.js"></script>
+    <script src="../src/core/Viewport.js"></script>
+    <script src="../src/core/Renderer.js"></script>
+    <script src="../src/core/Timers.js"></script>
+    <script src="../src/ui/Key.js"></script>
+    <script src="../src/core/Engine.js"></script>
+    <script src="../src/objects/LetterA.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      var mesh = engine.scene.addChild(new DK.LetterA());
+      mesh.applyLight(engine.light);
+      mesh.step = function () {
+        if ( DK.key.down.UP ) {
+          this.y += 2;
+        }else if ( DK.key.down.DOWN) {
+          this.y -= 2;
+        }
+        if ( DK.key.down.RIGHT ) {
+          this.x += 2;
+        }else if ( DK.key.down.LEFT) {
+          this.x -= 2;
+        }
+        if ( DK.key.down.X ) {
+          this.z += 2;
+        }else if ( DK.key.down.C) {
+          this.z -= 2;
+        }
+        //this.rotateX(3);
+        //this.rotateY(1);
+        //this.rotationY += 1;
+        this.rotationY += 1;
+      };
+      DK.key.startCapturing();
+      engine.start();
+    </script>
+  </body>
+</html>
