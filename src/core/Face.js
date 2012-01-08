@@ -42,18 +42,6 @@ DepthKit.Face.prototype.getAdjustedColor = function () {
 }
 
 DepthKit.Face.prototype.getLightFactor = function () {
-  /*
-  var ab = {
-    x: this.a.x - this.b.x,
-    y: this.a.y - this.b.y,
-    z: this.a.z - this.b.z
-  };
-  var bc = {
-    x: this.b.x - this.c.x,
-    y: this.b.y - this.c.y,
-    z: this.b.z - this.c.z
-  };
-  */
   var ab = {
     x: this.a.mx - this.b.mx,
     y: this.a.my - this.b.my,

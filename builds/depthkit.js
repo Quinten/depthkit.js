@@ -1,11 +1,9 @@
 
 /**
- * 
  * depthkit.js 
- * framework for drawing 3d stuff on a html5 canvas element
- * by @qubecity
- * http://strafspul.be
- * 
+ * 3d engine for the canvas 2d context and the javascript console
+ * by Quinten Clause
+ * https://github.com/Quinten/depthkit.js
  */
 
 var DepthKit = DepthKit || {rad: (Math.PI / 180), deg: (180 / Math.PI)}, DK = DepthKit;
@@ -76,18 +74,6 @@ DepthKit.Face.prototype.getAdjustedColor = function () {
 }
 
 DepthKit.Face.prototype.getLightFactor = function () {
-  /*
-  var ab = {
-    x: this.a.x - this.b.x,
-    y: this.a.y - this.b.y,
-    z: this.a.z - this.b.z
-  };
-  var bc = {
-    x: this.b.x - this.c.x,
-    y: this.b.y - this.c.y,
-    z: this.b.z - this.c.z
-  };
-  */
   var ab = {
     x: this.a.mx - this.b.mx,
     y: this.a.my - this.b.my,
@@ -671,42 +657,6 @@ DepthKit.Renderer = function ( viewport, scene, camera ) {
   this.viewport = viewport || new DepthKit.Viewport();
 }
 
-/*
-DepthKit.Renderer.prototype.render = function () {
-    var cosX = Math.cos(this.camera.tx * DK.rad);
-    var sinX = Math.sin(this.camera.tx * DK.rad);
-    var cosY = Math.cos(this.camera.ty * DK.rad);
-    var sinY = Math.sin(this.camera.ty * DK.rad);
-    var cosZ = Math.cos(this.camera.tz * DK.rad);
-    var sinZ = Math.sin(this.camera.tz * DK.rad);
-    for ( var m = 0; m < this.scene.meshes.length; m++ ) {
-      this.scene.meshes[m].d = 0xffffff;
-      var rootX = this.scene.meshes[m].getGlobalX() - this.camera.x;
-      var rootY = this.scene.meshes[m].getGlobalY() - this.camera.y;
-      var rootZ = this.scene.meshes[m].getGlobalZ() - this.camera.z;
-      for ( var v = 0; v < this.scene.meshes[m].vertices.length; v++ ) {
-        var oldX = this.scene.meshes[m].vertices[v].x + rootX;
-        var oldY = this.scene.meshes[m].vertices[v].y + rootY;
-        var oldZ = this.scene.meshes[m].vertices[v].z + rootZ;
-        var partA = sinZ * oldY + cosZ * oldX;
-        var partB = cosY * oldZ + sinY * partA;
-        var partC = cosZ * oldY - sinZ * oldX;
-        var newX = cosY * partA - sinY * oldZ;
-        var newY = sinX * partB + cosX * partC;
-        var newZ = cosX * partB - sinX * partC;
-        this.scene.meshes[m].vertices[v].px = this.viewport.vpX + (newX - this.camera.ex) * (this.camera.ez / newZ);
-        this.scene.meshes[m].vertices[v].py = this.viewport.vpY + (newY - this.camera.ey) * (this.camera.ez / newZ);
-        this.scene.meshes[m].vertices[v].pz = newZ;
-        this.scene.meshes[m].vertices[v].d = Math.sqrt(oldX * oldX + oldY * oldY + oldZ * oldZ);
-        this.scene.meshes[m].d = Math.min(this.scene.meshes[m].d, this.scene.meshes[m].vertices[v].d);
-      }
-    }
-    this.scene.meshes.sort(DK.meshSort);
-    for ( m = 0; m < this.scene.meshes.length; m++ ) {
-      this.scene.meshes[m].draw(this.viewport.context);
-    }
-}*/
-
 DepthKit.Renderer.prototype.render = function () {
   this.scene.initM();
   this.scene.rotateM();
@@ -720,9 +670,6 @@ DepthKit.Renderer.prototype.render = function () {
   var sinZ = Math.sin(this.camera.tz * DK.rad);
   for ( var m = 0; m < this.scene.meshes.length; m++ ) {
     this.scene.meshes[m].d = 0xffffff;
-    //var rootX = this.scene.meshes[m].getGlobalX() - this.camera.x;
-    //var rootY = this.scene.meshes[m].getGlobalY() - this.camera.y;
-    //var rootZ = this.scene.meshes[m].getGlobalZ() - this.camera.z;
     for ( var v = 0; v < this.scene.meshes[m].vertices.length; v++ ) {
       var oldX = this.scene.meshes[m].vertices[v].mx - this.camera.x;
       var oldY = this.scene.meshes[m].vertices[v].my - this.camera.y;
@@ -750,6 +697,7 @@ DepthKit.Renderer.prototype.render = function () {
  * Normalize the browser animation API across implementations. This requests
  * the browser to schedule a repaint of the window for the next animation frame.
  * Checks for cross-browser support, and, failing to find it, falls back to setTimeout.
+ * // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
  * @param {function}    callback  Function to call when it's time to update your animation for the next repaint.
  * @param {HTMLElement} element   Optional parameter specifying the element that visually bounds the entire animation.
  * @return {number} Animation frame request.
@@ -993,84 +941,4 @@ DepthKit.Cube.prototype.draw = function ( context ) {
  }
  context.restore();
 }
-
-DepthKit.LetterA = function ( ) {
-  DepthKit.Mesh.call(this, 0, 0, 0);
-  //first set
-  this.addVertex( -50, -250, -50);
-  this.addVertex(  50, -250, -50);
-  this.addVertex( 200,  250, -50);
-  this.addVertex( 100,  250, -50);
-  this.addVertex(  50,  100, -50);
-  this.addVertex( -50,  100, -50);
-  this.addVertex(-100,  250, -50);
-  this.addVertex(-200,  250, -50);
-  this.addVertex(   0, -150, -50);
-  this.addVertex(  50,    0, -50);
-  this.addVertex( -50,    0, -50);
-  //second set
-  this.addVertex( -50, -250,  50);
-  this.addVertex(  50, -250,  50);
-  this.addVertex( 200,  250,  50);
-  this.addVertex( 100,  250,  50);
-  this.addVertex(  50,  100,  50);
-  this.addVertex( -50,  100,  50);
-  this.addVertex(-100,  250,  50);
-  this.addVertex(-200,  250,  50);
-  this.addVertex(   0, -150,  50);
-  this.addVertex(  50,    0,  50);
-  this.addVertex( -50,    0,  50);
-  
-  this.addFace(this.vertices[0],  this.vertices[1],  this.vertices[8],  "#6666cc");
-  this.addFace(this.vertices[1],  this.vertices[9],  this.vertices[8],  "#6666cc");
-  this.addFace(this.vertices[1],  this.vertices[2],  this.vertices[9],  "#6666cc");
-  this.addFace(this.vertices[2],  this.vertices[4],  this.vertices[9],  "#6666cc");
-  this.addFace(this.vertices[2],  this.vertices[3],  this.vertices[4],  "#6666cc");
-  this.addFace(this.vertices[4],  this.vertices[5],  this.vertices[9],  "#6666cc");
-  this.addFace(this.vertices[9],  this.vertices[5],  this.vertices[10], "#6666cc");
-  this.addFace(this.vertices[5],  this.vertices[6],  this.vertices[7],  "#6666cc");
-  this.addFace(this.vertices[5],  this.vertices[7],  this.vertices[10], "#6666cc");
-  this.addFace(this.vertices[0],  this.vertices[10], this.vertices[7],  "#6666cc");
-  this.addFace(this.vertices[0],  this.vertices[8],  this.vertices[10], "#6666cc");
-  
-  this.addFace(this.vertices[11], this.vertices[19], this.vertices[12], "#cc6666");
-  this.addFace(this.vertices[12], this.vertices[19], this.vertices[20], "#cc6666");
-  this.addFace(this.vertices[12], this.vertices[20], this.vertices[13], "#cc6666");
-  this.addFace(this.vertices[13], this.vertices[20], this.vertices[15], "#cc6666");
-  this.addFace(this.vertices[13], this.vertices[15], this.vertices[14], "#cc6666");
-  this.addFace(this.vertices[15], this.vertices[20], this.vertices[16], "#cc6666");
-  this.addFace(this.vertices[20], this.vertices[21], this.vertices[16], "#cc6666");
-  this.addFace(this.vertices[16], this.vertices[18], this.vertices[17], "#cc6666");
-  this.addFace(this.vertices[16], this.vertices[21], this.vertices[18], "#cc6666");
-  this.addFace(this.vertices[11], this.vertices[18], this.vertices[21], "#cc6666");
-  this.addFace(this.vertices[11], this.vertices[21], this.vertices[19], "#cc6666");
-  
-  this.addFace(this.vertices[0],  this.vertices[11], this.vertices[1],  "#cccc66");
-  this.addFace(this.vertices[11], this.vertices[12], this.vertices[1],  "#cccc66");
-  this.addFace(this.vertices[1],  this.vertices[12], this.vertices[2],  "#cccc66");
-  this.addFace(this.vertices[12], this.vertices[13], this.vertices[2],  "#cccc66");
-  this.addFace(this.vertices[3],  this.vertices[2],  this.vertices[14], "#cccc66");
-  this.addFace(this.vertices[2],  this.vertices[13], this.vertices[14], "#cccc66");
-  this.addFace(this.vertices[4],  this.vertices[3],  this.vertices[15], "#cccc66");
-  this.addFace(this.vertices[3],  this.vertices[14], this.vertices[15], "#cccc66");
-  this.addFace(this.vertices[5],  this.vertices[4],  this.vertices[16], "#cccc66");
-  this.addFace(this.vertices[4],  this.vertices[15], this.vertices[16], "#cccc66");
-  this.addFace(this.vertices[6],  this.vertices[5],  this.vertices[17], "#cccc66");
-  this.addFace(this.vertices[5],  this.vertices[16], this.vertices[17], "#cccc66");
-  this.addFace(this.vertices[7],  this.vertices[6],  this.vertices[18], "#cccc66");
-  this.addFace(this.vertices[6],  this.vertices[17], this.vertices[18], "#cccc66");
-  this.addFace(this.vertices[0],  this.vertices[7],  this.vertices[11], "#cccc66");
-  this.addFace(this.vertices[7],  this.vertices[18], this.vertices[11], "#cccc66");
-  this.addFace(this.vertices[8],  this.vertices[9],  this.vertices[19], "#cccc66");
-  this.addFace(this.vertices[9],  this.vertices[20], this.vertices[19], "#cccc66");
-  this.addFace(this.vertices[9],  this.vertices[10], this.vertices[20], "#cccc66");
-  this.addFace(this.vertices[10], this.vertices[21], this.vertices[20], "#cccc66");
-  this.addFace(this.vertices[10], this.vertices[8],  this.vertices[21], "#cccc66");
-  this.addFace(this.vertices[8],  this.vertices[19], this.vertices[21], "#cccc66");
-}
-
-DepthKit.LetterA.prototype = new DepthKit.Mesh();
-DepthKit.LetterA.prototype.constructor = DepthKit.LetterA;
-DepthKit.LetterA.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.LetterA.prototype.type = "LetterA";
 

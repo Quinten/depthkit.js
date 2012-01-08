@@ -2,6 +2,7 @@
  * Normalize the browser animation API across implementations. This requests
  * the browser to schedule a repaint of the window for the next animation frame.
  * Checks for cross-browser support, and, failing to find it, falls back to setTimeout.
+ * // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
  * @param {function}    callback  Function to call when it's time to update your animation for the next repaint.
  * @param {HTMLElement} element   Optional parameter specifying the element that visually bounds the entire animation.
  * @return {number} Animation frame request.

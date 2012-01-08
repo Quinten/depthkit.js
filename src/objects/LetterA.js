@@ -1,3 +1,5 @@
+// mainly kept as quick and complex debug shape, to check z-sorting and stuff
+// but originated from https://github.com/lamberta/html5-animation/blob/master/examples/ch16/09-extruded-a.html
 DepthKit.LetterA = function ( ) {
   DepthKit.Mesh.call(this, 0, 0, 0);
   //first set
