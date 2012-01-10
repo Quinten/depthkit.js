@@ -25,11 +25,15 @@
     <script src="../src/ui/Key.js"></script>
     <script src="../src/core/Engine.js"></script>
     <script src="../src/objects/LetterA.js"></script>
+    <script src="../src/objects/ObjModel.js"></script>
     <script>
       var engine = new DK.Engine();
       engine.viewport.fillPage();
-      var mesh = engine.scene.addChild(new DK.LetterA());
-      mesh.applyLight(engine.light);
+      //var mesh = engine.scene.addChild(new DK.LetterA());
+      var mesh = engine.scene.addChild(new DK.ObjModel());
+      mesh.onParsed = function () { this.applyLight(engine.light); };
+      mesh.parseFile("../demos/models/spaceship.obj", 50);
+      
       mesh.step = function () {
         if ( DK.key.down.UP ) {
           this.y += 2;
@@ -50,6 +54,8 @@
         //this.rotateY(1);
         //this.rotationY += 1;
         this.rotationY += 1;
+        this.rotationX += 1;
+        this.rotationZ += 1;
       };
       DK.key.startCapturing();
       engine.start();

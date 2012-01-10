@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>debug</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor("#002029");
+      engine.camera.z = -1000;
+      
+      var mesh = engine.scene.addChild(new DK.ObjModel());
+      
+      mesh.onParsed = function () {
+        this.applyLight(engine.light);
+        this.applyFillcolor("#ffffff");
+        this.rotateZ(180);
+        this.rotateX(-15);
+        console.log(this.faces.length); 
+      };
+      
+      mesh.parseFile("../demos/models/spaceship.obj", 100);
+      
+      mesh.step = function () {
+        this.rotateY(1);
+      };
+
+      engine.start();
+    </script>
+  </body>
+</html>
