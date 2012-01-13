@@ -26,9 +26,9 @@
       }
       
       engine.camera.y = -300;
-      engine.camera.tx = -25;
+      engine.camera.rotationX = -25;
       engine.camera.step = function () {
-        this.ty += 1;
+        this.rotationY += 1;
       };
       
       engine.start();

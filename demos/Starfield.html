@@ -9,13 +9,15 @@
   </head>
   <body>
     <script src="../builds/depthkit.min.js"></script>
+    
+    <!-- voor Mona, Ingeborg en Tom -->
     <script>
       var engine = new DK.Engine();
       engine.viewport.fillPage();
       engine.viewport.setBackgroundcolor("#e4e1ff");
       engine.camera.z = -700;
       engine.camera.y = 300;
-      engine.camera.tx = 25;
+      engine.camera.rotationX = 25;
       engine.light.x = 100;
       
       var root = new DK.Container();

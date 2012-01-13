@@ -584,9 +584,9 @@ DepthKit.Camera = function () {
   this.y = 0;
   this.z = -650;
   // rotation of the camera
-  this.tx = 0;
-  this.ty = 0;
-  this.tz = 0;
+  this.rotationX = 0;
+  this.rotationY = 0;
+  this.rotationZ = 0;
   // focal point in 3d coords (viewers position relative to the display surface)
   this.ex = 0;
   this.ey = 0;
@@ -676,12 +676,12 @@ DepthKit.Renderer.prototype.render = function () {
   this.scene.rotateM();
   //this.scene.scaleM();
   this.scene.translateM();
-  var cosX = Math.cos(this.camera.tx * DK.rad);
-  var sinX = Math.sin(this.camera.tx * DK.rad);
-  var cosY = Math.cos(this.camera.ty * DK.rad);
-  var sinY = Math.sin(this.camera.ty * DK.rad);
-  var cosZ = Math.cos(this.camera.tz * DK.rad);
-  var sinZ = Math.sin(this.camera.tz * DK.rad);
+  var cosX = Math.cos(this.camera.rotationX * DK.rad);
+  var sinX = Math.sin(this.camera.rotationX * DK.rad);
+  var cosY = Math.cos(this.camera.rotationY * DK.rad);
+  var sinY = Math.sin(this.camera.rotationY * DK.rad);
+  var cosZ = Math.cos(this.camera.rotationZ * DK.rad);
+  var sinZ = Math.sin(this.camera.rotationZ * DK.rad);
   for ( var m = 0; m < this.scene.meshes.length; m++ ) {
     this.scene.meshes[m].d = 0xffffff;
     for ( var v = 0; v < this.scene.meshes[m].vertices.length; v++ ) {
@@ -756,7 +756,6 @@ DepthKit.key = {};
 DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
 
 DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
-
 
 DepthKit.key.onKD = function (event) {
   switch (event.keyCode) {           
