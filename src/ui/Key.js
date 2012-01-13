@@ -4,7 +4,6 @@ DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false
 
 DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
 
-
 DepthKit.key.onKD = function (event) {
   switch (event.keyCode) {           
     case 38:
