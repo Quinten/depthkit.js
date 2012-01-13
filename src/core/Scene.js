@@ -6,8 +6,6 @@ DepthKit.Scene = function () {
 
 DepthKit.Scene.prototype = new DepthKit.Container();
 DepthKit.Scene.prototype.constructor = DepthKit.Scene;
-DepthKit.Scene.prototype.upper = DepthKit.Container.prototype;
-DepthKit.Scene.prototype.type = "Scene";
 
 DepthKit.Scene.prototype.setScene = function ( scene ) { }
 

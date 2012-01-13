@@ -126,8 +126,6 @@ DepthKit.SceneObject =  function ( x, y ,z ) {
   this.scaleMZ = 1;
 }
 
-DepthKit.SceneObject.prototype.type = "SceneObject";
-
 DepthKit.SceneObject.prototype.setScene = function ( scene ) {
   this.scene = scene;
 }
@@ -157,11 +155,8 @@ DepthKit.SceneObject.prototype.getGlobalZ = function () {
 }
 
 DepthKit.SceneObject.prototype.initM = function () { }
-
 DepthKit.SceneObject.prototype.rotateM = function () { }
-
 DepthKit.SceneObject.prototype.scaleM = function () { }
-
 DepthKit.SceneObject.prototype.translateM = function () { }
 
 DepthKit.Mesh = function ( x, y, z ) {
@@ -176,8 +171,6 @@ DepthKit.Mesh = function ( x, y, z ) {
 
 DepthKit.Mesh.prototype = new DepthKit.SceneObject();
 DepthKit.Mesh.prototype.constructor = DepthKit.Mesh;
-DepthKit.Mesh.prototype.upper = DepthKit.SceneObject.prototype;
-DepthKit.Mesh.prototype.type = "Mesh";
 
 DepthKit.Mesh.prototype.addVertex = function ( x, y, z ) {
   this.vertices.push(new DepthKit.Vertex(x, y, z));
@@ -365,8 +358,6 @@ DepthKit.Container =  function ( x, y ,z ) {
 
 DepthKit.Container.prototype = new DepthKit.SceneObject();
 DepthKit.Container.prototype.constructor = DepthKit.Container;
-DepthKit.Container.prototype.upper = DepthKit.SceneObject.prototype;
-DepthKit.Container.prototype.type = "Container";
 
 DepthKit.Container.prototype.rotateX = function ( degrees ) {
   var cosA = Math.cos(degrees * DK.rad);
@@ -556,8 +547,6 @@ DepthKit.Scene = function () {
 
 DepthKit.Scene.prototype = new DepthKit.Container();
 DepthKit.Scene.prototype.constructor = DepthKit.Scene;
-DepthKit.Scene.prototype.upper = DepthKit.Container.prototype;
-DepthKit.Scene.prototype.type = "Scene";
 
 DepthKit.Scene.prototype.setScene = function ( scene ) { }
 
@@ -951,8 +940,6 @@ DepthKit.Cube = function ( size ) {
 
 DepthKit.Cube.prototype = new DepthKit.Mesh();
 DepthKit.Cube.prototype.constructor = DepthKit.Cube;
-DepthKit.Cube.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.Cube.prototype.type = "Cube";
 
 DepthKit.Cube.prototype.draw = function ( context ) {
  this.faces.sort(DK.faceSort);
@@ -980,8 +967,6 @@ DepthKit.ObjModel = function ( ) {
 
 DepthKit.ObjModel.prototype = new DepthKit.Mesh();
 DepthKit.ObjModel.prototype.constructor = DepthKit.ObjModel;
-DepthKit.ObjModel.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.ObjModel.prototype.type = "ObjModel";
 
 DepthKit.ObjModel.prototype.parseFile = function ( file, scale ) {
   if ( file !== undefined ) {

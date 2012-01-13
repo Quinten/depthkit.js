@@ -10,8 +10,6 @@ DepthKit.Mesh = function ( x, y, z ) {
 
 DepthKit.Mesh.prototype = new DepthKit.SceneObject();
 DepthKit.Mesh.prototype.constructor = DepthKit.Mesh;
-DepthKit.Mesh.prototype.upper = DepthKit.SceneObject.prototype;
-DepthKit.Mesh.prototype.type = "Mesh";
 
 DepthKit.Mesh.prototype.addVertex = function ( x, y, z ) {
   this.vertices.push(new DepthKit.Vertex(x, y, z));

@@ -22,8 +22,6 @@ DepthKit.SceneObject =  function ( x, y ,z ) {
   this.scaleMZ = 1;
 }
 
-DepthKit.SceneObject.prototype.type = "SceneObject";
-
 DepthKit.SceneObject.prototype.setScene = function ( scene ) {
   this.scene = scene;
 }
@@ -53,10 +51,7 @@ DepthKit.SceneObject.prototype.getGlobalZ = function () {
 }
 
 DepthKit.SceneObject.prototype.initM = function () { }
-
 DepthKit.SceneObject.prototype.rotateM = function () { }
-
 DepthKit.SceneObject.prototype.scaleM = function () { }
-
 DepthKit.SceneObject.prototype.translateM = function () { }
 

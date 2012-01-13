@@ -77,6 +77,4 @@ DepthKit.LetterA = function ( ) {
 
 DepthKit.LetterA.prototype = new DepthKit.Mesh();
 DepthKit.LetterA.prototype.constructor = DepthKit.LetterA;
-DepthKit.LetterA.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.LetterA.prototype.type = "LetterA";
 

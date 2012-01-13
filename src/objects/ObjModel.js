@@ -5,8 +5,6 @@ DepthKit.ObjModel = function ( ) {
 
 DepthKit.ObjModel.prototype = new DepthKit.Mesh();
 DepthKit.ObjModel.prototype.constructor = DepthKit.ObjModel;
-DepthKit.ObjModel.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.ObjModel.prototype.type = "ObjModel";
 
 DepthKit.ObjModel.prototype.parseFile = function ( file, scale ) {
   if ( file !== undefined ) {

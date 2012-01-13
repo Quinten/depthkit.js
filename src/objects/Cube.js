@@ -32,8 +32,6 @@ DepthKit.Cube = function ( size ) {
 
 DepthKit.Cube.prototype = new DepthKit.Mesh();
 DepthKit.Cube.prototype.constructor = DepthKit.Cube;
-DepthKit.Cube.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.Cube.prototype.type = "Cube";
 
 DepthKit.Cube.prototype.draw = function ( context ) {
  this.faces.sort(DK.faceSort);

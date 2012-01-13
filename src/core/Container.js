@@ -5,8 +5,6 @@ DepthKit.Container =  function ( x, y ,z ) {
 
 DepthKit.Container.prototype = new DepthKit.SceneObject();
 DepthKit.Container.prototype.constructor = DepthKit.Container;
-DepthKit.Container.prototype.upper = DepthKit.SceneObject.prototype;
-DepthKit.Container.prototype.type = "Container";
 
 DepthKit.Container.prototype.rotateX = function ( degrees ) {
   var cosA = Math.cos(degrees * DK.rad);
