@@ -36,11 +36,19 @@
       
       var container = new DK.Container();
       container.addChild(mesh);
-      container.rotationX = 45;
-      container.rotationZ = 45;
+      //container.rotationX = 45;
+      //container.rotationZ = 45;
       engine.scene.addChild(container);
       
-      mesh.step = function () { this.rotateY(1);};
+      mesh.step = function () {
+        this.rotateY(1); 
+      };
+      
+      DK.mouse.attachTo(engine.viewport);
+      container.step = function () {
+        this.rotationY += (engine.viewport.mouse.x - engine.viewport.vpX) * .01;
+        this.rotationX += (engine.viewport.mouse.y - engine.viewport.vpY) * .01;
+      };
       
       engine.start();
     </script>

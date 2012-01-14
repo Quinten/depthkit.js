@@ -41,7 +41,9 @@ DepthKit.Engine.prototype.start = function () {
     // translate everything and draw it
     self.renderer.render();
     // unset pressed keys
-    DepthKit.key.unsetPressed();    
+    if ( DepthKit.key.pressed !== undefined ) {
+      DepthKit.key.unsetPressed();
+    }    
   }());
 }
 

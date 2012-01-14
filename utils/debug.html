@@ -23,17 +23,20 @@
     <script src="../src/core/Renderer.js"></script>
     <script src="../src/core/Timers.js"></script>
     <script src="../src/ui/Key.js"></script>
+    <script src="../src/ui/Mouse.js"></script>
     <script src="../src/core/Engine.js"></script>
     <script src="../src/objects/LetterA.js"></script>
     <script src="../src/objects/ObjModel.js"></script>
     <script>
       var engine = new DK.Engine();
       engine.viewport.fillPage();
+      DK.key.startCapturing();
+      DK.mouse.attachTo(engine.viewport);
+      
       //var mesh = engine.scene.addChild(new DK.LetterA());
       var mesh = engine.scene.addChild(new DK.ObjModel());
       mesh.onParsed = function () { this.applyLight(engine.light); };
       mesh.parseFile("../demos/models/spaceship.obj", 50);
-      
       mesh.step = function () {
         if ( DK.key.down.UP ) {
           this.y += 2;
@@ -53,11 +56,13 @@
         //this.rotateX(3);
         //this.rotateY(1);
         //this.rotationY += 1;
-        this.rotationY += 1;
-        this.rotationX += 1;
-        this.rotationZ += 1;
+        //this.rotationY += 1;
+        //this.rotationX += 1;
+        //this.rotationZ += 1;
+        this.rotateY((engine.viewport.mouse.x - engine.viewport.vpX) * .01 );
+        this.rotateX((engine.viewport.mouse.y - engine.viewport.vpY) * .01 );
       };
-      DK.key.startCapturing();
+
       engine.start();
     </script>
   </body>

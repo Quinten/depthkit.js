@@ -1,11 +1,35 @@
 DepthKit.key = {};
 
-DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
+DepthKit.key.startCapturing = function () {
+  // these are the keys we will be capturing
+  // down is currently down
+  // pressed is like 'just pressed' and is intended to last only till the end of a frame 
+  DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
+  DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false}; 
+  window.addEventListener('keydown', DepthKit.key.onKD, false);
+  window.addEventListener('keyup', DepthKit.key.onKU, false);
+}
 
-DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
+DepthKit.key.stopCapturing = function () { 
+  window.removeEventListener('keydown', DepthKit.key.onKD, false);
+  window.removeEventListener('keyup', DepthKit.key.onKU, false);
+  delete DepthKit.key.down;
+  delete DepthKit.key.pressed;
+}
 
-DepthKit.key.onKD = function (event) {
-  switch (event.keyCode) {           
+// Best to call this at the end of a frame if you intend to build your own prototype of Engine.js
+DepthKit.key.unsetPressed = function () {
+  DepthKit.key.pressed.UP = false;
+  DepthKit.key.pressed.DOWN = false;
+  DepthKit.key.pressed.LEFT = false;
+  DepthKit.key.pressed.RIGHT = false;
+  DepthKit.key.pressed.X = false;
+  DepthKit.key.pressed.C = false;
+  DepthKit.key.pressed.SPACE = false;
+}
+
+DepthKit.key.onKD = function (e) {
+  switch (e.keyCode) {           
     case 38:
       if(!DepthKit.key.down.UP){
         DepthKit.key.pressed.UP = true;
@@ -52,8 +76,8 @@ DepthKit.key.onKD = function (event) {
   }
 }
   
-DepthKit.key.onKU = function (event) {
-  switch (event.keyCode) {           
+DepthKit.key.onKU = function (e) {
+  switch (e.keyCode) {           
     case 38:
       DepthKit.key.down.UP = false;
       break;
@@ -76,28 +100,5 @@ DepthKit.key.onKU = function (event) {
       DepthKit.key.down.SPACE = false;
       break;
   }
-}
-
-DepthKit.key.startCapturing = function () { 
-  window.addEventListener('keydown', DepthKit.key.onKD, false);
-  window.addEventListener('keyup', DepthKit.key.onKU, false);
-}
-
-DepthKit.key.stopCapturing = function () { 
-  window.removeEventListener('keydown', DepthKit.key.onKD, false);
-  window.removeEventListener('keyup', DepthKit.key.onKU, false);
-}
-
-/*
- * Best to call this at the end of frame
- */
-DepthKit.key.unsetPressed = function () {
-  DepthKit.key.pressed.UP = false;
-  DepthKit.key.pressed.DOWN = false;
-  DepthKit.key.pressed.LEFT = false;
-  DepthKit.key.pressed.RIGHT = false;
-  DepthKit.key.pressed.X = false;
-  DepthKit.key.pressed.C = false;
-  DepthKit.key.pressed.SPACE = false;
 }
 
