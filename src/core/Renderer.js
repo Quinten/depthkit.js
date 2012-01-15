@@ -6,10 +6,13 @@ DepthKit.Renderer = function ( viewport, scene, camera ) {
 }
 
 DepthKit.Renderer.prototype.render = function () {
+  // create global 'shadow'-vertices
   this.scene.initM();
   this.scene.rotateM();
   //this.scene.scaleM();
   this.scene.translateM();
+  // projection
+  // http://en.wikipedia.org/wiki/3D_projection
   var cosX = Math.cos(this.camera.rotationX * DK.rad);
   var sinX = Math.sin(this.camera.rotationX * DK.rad);
   var cosY = Math.cos(this.camera.rotationY * DK.rad);
@@ -31,6 +34,7 @@ DepthKit.Renderer.prototype.render = function () {
       this.scene.meshes[m].vertices[v].px = this.viewport.vpX + (newX - this.camera.ex) * (this.camera.ez / newZ);
       this.scene.meshes[m].vertices[v].py = this.viewport.vpY + (newY - this.camera.ey) * (this.camera.ez / newZ);
       this.scene.meshes[m].vertices[v].pz = newZ;
+      // Euler distance for sorting
       this.scene.meshes[m].vertices[v].d = Math.sqrt(oldX * oldX + oldY * oldY + oldZ * oldZ);
       this.scene.meshes[m].d = Math.min(this.scene.meshes[m].d, this.scene.meshes[m].vertices[v].d);
     }
