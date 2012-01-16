@@ -40,14 +40,21 @@ DepthKit.Renderer.prototype.render = function () {
     }
   }
   this.scene.meshes.sort(DK.meshSort);
-  for ( m = 0; m < this.scene.meshes.length; m++ ) {
-    this.scene.meshes[m].draw(this.viewport.context);
-    if ( this.fog !== undefined ) {
-      this.fog.update(this.scene.meshes[m].d, this.viewport);
-    }
-  }
   if ( this.fog !== undefined ) {
+    // fog
+    this.fog.init(this.viewport);
+    for ( m = 0; m < this.scene.meshes.length; m++ ) {
+      if (this.scene.meshes[m].d < this.fog.depth) {
+        this.fog.update(this.scene.meshes[m].d, this.viewport);
+        this.scene.meshes[m].draw(this.viewport.context);
+      }
+    }
     this.fog.finish(this.viewport);
+  } else {
+    // no fog
+    for ( m = 0; m < this.scene.meshes.length; m++ ) {
+      this.scene.meshes[m].draw(this.viewport.context);
+    }    
   }
 }
  

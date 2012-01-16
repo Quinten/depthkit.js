@@ -12,9 +12,9 @@
     <script>
       var engine = new DK.Engine();
       engine.viewport.fillPage();
-      engine.viewport.setBackgroundcolor("#ffffff");
+      engine.viewport.setBackgroundcolor("#0000ff");
       
-      engine.renderer.fog = new DK.Fog("#ffffff", 2200);
+      engine.renderer.fog = new DK.Fog("#ffffff", 1400);
       
       for (var i = 0; i < 24; i++) {
         var mesh = engine.scene.addChild(new DK.Cube(100));
@@ -25,13 +25,51 @@
         mesh.z = 1500 - Math.random() * 3000;
       }
       
+      DK.key.startCapturing();
+      
       engine.camera.y = -300;
       engine.camera.rotationX = -25;
+      
       engine.camera.step = function () {
-        this.rotationY += 1;
+        if ( DK.key.down && DK.key.pressed ) {
+          
+          if ( DK.key.down.RIGHT ) {
+            this.rotationY += 1;
+          } else if ( DK.key.down.LEFT) {
+            this.rotationY -= 1;
+          }
+          
+          if ( DK.key.down.UP ) {
+            this.x -= 8 * Math.cos((90 + this.rotationY) * DK.rad);
+            this.z += 8 * Math.sin((90 + this.rotationY) * DK.rad);
+          } else if ( DK.key.down.DOWN ) {
+            this.x += 8 * Math.cos((90 + this.rotationY) * DK.rad);
+            this.z -= 8 * Math.sin((90 + this.rotationY) * DK.rad);
+          }
+          
+          if ( DK.key.pressed.SPACE ) {
+            if ( engine.renderer.fog ) {
+              delete engine.renderer.fog;
+            } else {
+              engine.renderer.fog = new DK.Fog("#ffffff", 1400);
+            }
+          }
+        }
       };
       
       engine.start();
+      
+      var instructions = document.createElement('div');
+      instructions.innerHTML = "use arrow keys to move around<br />spacebar to toggle fog effect";
+      instructions.style['font-family']  = "monospace"; 
+      instructions.style['color'] = "#dadada";
+      instructions.style['padding'] = "16px";
+      instructions.style['position'] = "absolute";
+      instructions.style['left'] = "0px";
+      instructions.style['top'] = "0px";
+      instructions.style['z-index'] = "10";
+      document.body.appendChild(instructions);
+      
     </script>
   </body>
 </html>

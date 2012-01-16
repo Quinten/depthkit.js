@@ -647,23 +647,31 @@ DepthKit.Fog = function ( color, depth ) {
       red = nColor >> 16,
       green = nColor >> 8 & 0xff,
       blue = nColor & 0xff;
-  this.aColor = "rgba(" + red + ", " + green + ", " + blue + ", 0.15)";
+  this.aColor = "rgba(" + red + ", " + green + ", " + blue + ", 0.20)";
   this.lastZ = this.depth;
+}
+
+DepthKit.Fog.prototype.init = function ( viewport ) {
+  viewport.context.save();
+  viewport.context.fillStyle = this.color;
+  viewport.context.fillRect(0,0,viewport.canvas.width, viewport.canvas.height);
+  viewport.context.restore();
 }
 
 DepthKit.Fog.prototype.update = function ( z, viewport ) {
   viewport.context.save();
   viewport.context.fillStyle = this.aColor;
   for ( this.lastZ = this.lastZ; (this.lastZ > z && this.lastZ > 0); this.lastZ -= this.depth/20 ) {
-    viewport.context.fillRect(0,0,viewport.canvas.width, viewport.canvas.height); 
+    viewport.context.fillRect(0,0,viewport.canvas.width, viewport.canvas.height);
   }
-  viewport.context.restore(); 
+  viewport.context.restore();
 }
 
 DepthKit.Fog.prototype.finish = function ( viewport ) {
   this.update(0, viewport);
   this.lastZ = this.depth;
 }
+
 DepthKit.Renderer = function ( viewport, scene, camera ) {
   this.scene = scene || new DeptKit.Scene();
   this.camera = camera || new DepthKit.Camera();
@@ -706,14 +714,21 @@ DepthKit.Renderer.prototype.render = function () {
     }
   }
   this.scene.meshes.sort(DK.meshSort);
-  for ( m = 0; m < this.scene.meshes.length; m++ ) {
-    this.scene.meshes[m].draw(this.viewport.context);
-    if ( this.fog !== undefined ) {
-      this.fog.update(this.scene.meshes[m].d, this.viewport);
-    }
-  }
   if ( this.fog !== undefined ) {
+    // fog
+    this.fog.init(this.viewport);
+    for ( m = 0; m < this.scene.meshes.length; m++ ) {
+      if (this.scene.meshes[m].d < this.fog.depth) {
+        this.fog.update(this.scene.meshes[m].d, this.viewport);
+        this.scene.meshes[m].draw(this.viewport.context);
+      }
+    }
     this.fog.finish(this.viewport);
+  } else {
+    // no fog
+    for ( m = 0; m < this.scene.meshes.length; m++ ) {
+      this.scene.meshes[m].draw(this.viewport.context);
+    }    
   }
 }
  

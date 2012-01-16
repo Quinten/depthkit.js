@@ -20,11 +20,13 @@
     <script src="../src/core/Camera.js"></script>
     <script src="../src/core/Light.js"></script>
     <script src="../src/core/Viewport.js"></script>
+    <script src="../src/core/Fog.js"></script>
     <script src="../src/core/Renderer.js"></script>
     <script src="../src/core/Timers.js"></script>
     <script src="../src/ui/Key.js"></script>
     <script src="../src/ui/Mouse.js"></script>
     <script src="../src/core/Engine.js"></script>
+    <script src="../src/objects/Cube.js"></script>
     <script src="../src/objects/LetterA.js"></script>
     <script src="../src/objects/ObjModel.js"></script>
     <script>
@@ -38,11 +40,11 @@
       mesh.onParsed = function () { this.applyLight(engine.light); };
       mesh.parseFile("../demos/models/spaceship.obj", 50);
       mesh.step = function () {
-        if ( DK.key.down ) {        
+        if ( DK.key.down ) {
           if ( DK.key.down.UP ) {
-            this.y += 2;
-          }else if ( DK.key.down.DOWN) {
             this.y -= 2;
+          }else if ( DK.key.down.DOWN) {
+            this.y += 2;
           }
           if ( DK.key.down.RIGHT ) {
             this.x += 2;
