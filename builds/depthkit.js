@@ -903,6 +903,7 @@ DepthKit.mouse.attachTo = function (viewport) {
   };
   viewport.canvas.addEventListener('mousemove', viewport.mousemove, false);
   viewport.touchmove = function (e) {
+    e.preventDefault();
     var x, y;
     if (e.touches[0].pageX || e.touches[0].pageY) {
       x = e.touches[0].pageX;
