@@ -43,6 +43,8 @@
       };
       
       DK.mouse.attachTo(engine.viewport);
+      engine.viewport.mouse.x = engine.viewport.vpX;
+      engine.viewport.mouse.y = engine.viewport.vpY;
       container.step = function () {
         this.rotationY += (engine.viewport.mouse.x - engine.viewport.vpX) * .01;
         this.rotationX += (engine.viewport.mouse.y - engine.viewport.vpY) * .01;

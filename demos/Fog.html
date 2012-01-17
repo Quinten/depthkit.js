@@ -12,17 +12,17 @@
     <script>
       var engine = new DK.Engine();
       engine.viewport.fillPage();
-      engine.viewport.setBackgroundcolor("#0000ff");
+      engine.viewport.setBackgroundcolor("#ddeeff");
       
       engine.renderer.fog = new DK.Fog("#ffffff", 1400);
       
       for (var i = 0; i < 24; i++) {
-        var mesh = engine.scene.addChild(new DK.Cube(100));
+        var mesh = engine.scene.addChild(new DK.Cube(50, 200));
         mesh.applyFillcolor("#ffffff");
         mesh.applyLight(engine.light);
         mesh.rotateY(Math.random() * 360);
-        mesh.x = 1500 - Math.random() * 3000;
-        mesh.z = 1500 - Math.random() * 3000;
+        mesh.x = 1000 - Math.random() * 2000;
+        mesh.z = 1000 - Math.random() * 2000;
       }
       
       DK.key.startCapturing();

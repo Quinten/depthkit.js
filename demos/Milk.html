@@ -18,6 +18,7 @@
       var mesh = engine.scene.addChild(new DK.ObjModel());
       mesh.onParsed = function () {
         this.rotateZ(180);
+        this.rotateY(90);
         // sides
         this.addEdge(this.faces[0].a, this.faces[0].b);
         this.addEdge(this.faces[0].b, this.faces[0].c);
@@ -70,6 +71,8 @@
       mesh.parseFile("../demos/models/milk.obj", 100);
       
       DK.mouse.attachTo(engine.viewport);
+      engine.viewport.mouse.x = engine.viewport.vpX;
+      engine.viewport.mouse.y = engine.viewport.vpY;
       mesh.step = function () {
         this.rotationY += (engine.viewport.mouse.x - engine.viewport.vpX) * .01;
         this.rotationX += (engine.viewport.mouse.y - engine.viewport.vpY) * .01;

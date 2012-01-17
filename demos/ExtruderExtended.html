@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Extruder</title>
+    <title>Extruder Extended</title>
     <style>
       body { margin: 0; }
     </style>
@@ -27,7 +27,7 @@
       headMesh.y = 500;
       
       headMesh.applyLight(engine.light);
-      headMesh.applyFillcolor("#283f47");
+      headMesh.applyFillcolor("#aec4b0");
       engine.scene.addChild(headMesh);
       
       var tailMesh = new DK.Mesh();
@@ -47,7 +47,7 @@
       tailMesh.addFace(tailMesh.vertices[1], headMesh.vertices[0], tailMesh.vertices[0]);
       
       tailMesh.applyLight(engine.light);
-      tailMesh.applyFillcolor("#283f47");
+      tailMesh.applyFillcolor("#aec4b0");
       engine.scene.addChild(tailMesh);
       
       var targetX = 2000 - Math.random() * 4000,
@@ -65,17 +65,27 @@
         frameCount--;
         if ( frameCount < 0 ) {
           frameCount = 30;
-          targetX = 2000 - Math.random() * 4000;
-          targetY = 1000 - Math.random() * 2000;
-          targetZ =  -500 + Math.random() * 5500;
+          switch ((Math.random() * 3) | 0) {
+            case 0: 
+              targetX = 2000 - Math.random() * 4000;
+              break;
+            case 1:
+              targetY = 1000 - Math.random() * 2000;
+              break;
+            case 2:
+              targetZ =  -500 + Math.random() * 5500;
+              break;
+          }
         }
-        headMesh.x += (targetX - headMesh.x) / 12;
+        headMesh.x += (targetX - headMesh.x) / 8;
         headMesh.y += (targetY - headMesh.y) / 6;
         headMesh.z += (targetZ - headMesh.z) / 3;
-        headMesh.rotationX = Math.asin(headMesh.x - tailMesh.x) * DK.deg;
-        headMesh.rotationY = Math.asin(headMesh.y - tailMesh.y) * DK.deg;
-        headMesh.rotationY = Math.asin(headMesh.z - tailMesh.z) * DK.deg;
+        headMesh.rotationX += 1;
+        headMesh.rotationY += 1;
+        headMesh.rotationZ += 1;
       };
+      
+      engine.camera.rotationZ = 45;
       
       engine.paintMode = true;
       engine.start();
