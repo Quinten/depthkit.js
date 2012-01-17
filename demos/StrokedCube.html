@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Stroked Cube</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="header" style="width: 512px;height:512px;margin:0 auto;"><!-- --></div>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillElement('header'); // fill a div with id 'header'
+      engine.viewport.setBackgroundcolor('#000');
+      
+      var mesh = engine.scene.addChild(new DK.Cube(100));
+      mesh.applyFillcolor('#000000');
+      mesh.strokeColor = '#ffffff';
+      mesh.strokeWidth = 1;
+      
+      mesh.addEdge(mesh.vertices[0], mesh.vertices[1]).addEdge(mesh.vertices[1], mesh.vertices[2]).addEdge(mesh.vertices[2], mesh.vertices[3]).addEdge(mesh.vertices[3], mesh.vertices[0]);
+      mesh.addEdge(mesh.vertices[4], mesh.vertices[5]).addEdge(mesh.vertices[5], mesh.vertices[6]).addEdge(mesh.vertices[6], mesh.vertices[7]).addEdge(mesh.vertices[7], mesh.vertices[4]);
+      mesh.addEdge(mesh.vertices[0], mesh.vertices[4]).addEdge(mesh.vertices[1], mesh.vertices[5]).addEdge(mesh.vertices[2], mesh.vertices[6]).addEdge(mesh.vertices[3], mesh.vertices[7]);
+
+      mesh.mergeEdgesWithFaces();
+      
+      mesh.step = function () { 
+        this.rotateX(2).rotateY(-1); 
+      };
+      engine.camera.step = function () {
+        this.rotationZ += 1;
+      };
+      
+      engine.start();
+    </script>
+  </body>
+</html>

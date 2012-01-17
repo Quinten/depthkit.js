@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Extruder</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor("#000007");
+      
+      var headMesh = new DK.Mesh();
+      
+      headMesh.addVertex(-50, -50, 0);
+      headMesh.addVertex( 50, -50, 0);
+      headMesh.addVertex( 50,  50, 0);
+      headMesh.addVertex(-50,  50, 0);
+      
+      headMesh.addFace(headMesh.vertices[0], headMesh.vertices[1], headMesh.vertices[2]);
+      headMesh.addFace(headMesh.vertices[0], headMesh.vertices[2], headMesh.vertices[3]);
+      
+      headMesh.y = 500;
+      
+      headMesh.applyLight(engine.light);
+      headMesh.applyFillcolor("#283f47");
+      engine.scene.addChild(headMesh);
+      
+      var tailMesh = new DK.Mesh();
+      
+      tailMesh.addVertex(-50, -50, 0);
+      tailMesh.addVertex( 50, -50, 0);
+      tailMesh.addVertex( 50,  50, 0);
+      tailMesh.addVertex(-50,  50, 0);
+      
+      tailMesh.addFace(headMesh.vertices[3], headMesh.vertices[2], tailMesh.vertices[3]);
+      tailMesh.addFace(headMesh.vertices[2], tailMesh.vertices[2], tailMesh.vertices[3]);
+      tailMesh.addFace(headMesh.vertices[1], tailMesh.vertices[2], headMesh.vertices[2]);
+      tailMesh.addFace(headMesh.vertices[1], tailMesh.vertices[1], tailMesh.vertices[2]);
+      tailMesh.addFace(headMesh.vertices[0], headMesh.vertices[3], tailMesh.vertices[0]);
+      tailMesh.addFace(tailMesh.vertices[0], headMesh.vertices[3], tailMesh.vertices[3]);
+      tailMesh.addFace(headMesh.vertices[1], headMesh.vertices[0], tailMesh.vertices[1]);
+      tailMesh.addFace(tailMesh.vertices[1], headMesh.vertices[0], tailMesh.vertices[0]);
+      
+      tailMesh.applyLight(engine.light);
+      tailMesh.applyFillcolor("#283f47");
+      engine.scene.addChild(tailMesh);
+      
+      var targetX = 2000 - Math.random() * 4000,
+          targetY = 1000 - Math.random() * 2000,
+          targetZ =  -500 + Math.random() * 5500,
+          frameCount = 30;
+      
+      tailMesh.step = function () {
+        tailMesh.x = headMesh.x;
+        tailMesh.y = headMesh.y;
+        tailMesh.z = headMesh.z;
+        tailMesh.rotationX = headMesh.rotationX;
+        tailMesh.rotationY = headMesh.rotationY;
+        tailMesh.rotationZ = headMesh.rotationZ;
+        frameCount--;
+        if ( frameCount < 0 ) {
+          frameCount = 30;
+          targetX = 2000 - Math.random() * 4000;
+          targetY = 1000 - Math.random() * 2000;
+          targetZ =  -500 + Math.random() * 5500;
+        }
+        headMesh.x += (targetX - headMesh.x) / 12;
+        headMesh.y += (targetY - headMesh.y) / 6;
+        headMesh.z += (targetZ - headMesh.z) / 3;
+        headMesh.rotationX = Math.asin(headMesh.x - tailMesh.x) * DK.deg;
+        headMesh.rotationY = Math.asin(headMesh.y - tailMesh.y) * DK.deg;
+        headMesh.rotationY = Math.asin(headMesh.z - tailMesh.z) * DK.deg;
+      };
+      
+      engine.paintMode = true;
+      engine.start();
+      
+    </script>
+  </body>
+</html>

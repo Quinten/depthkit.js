@@ -1,8 +1,6 @@
 
 /**
- * depthkit.js 
- * 3d engine for the canvas 2d context and the javascript console
- * by Quinten Clause
+ * depthkit.js
  * https://github.com/Quinten/depthkit.js
  */
 
@@ -24,6 +22,7 @@ DepthKit.Vertex = function ( x, y, z ) {
 DepthKit.Edge = function ( u, v ) {
   this.u = u || new DepthKit.Vertex();
   this.v = v || new DepthKit.Vertex();
+  this.faces = [];
 }
 
 DepthKit.Edge.prototype.isBehindCamera = function () {
@@ -36,6 +35,8 @@ DepthKit.Face = function ( a, b, c, color ) {
   this.c = c || new DepthKit.Vertex();
   this.color = color || "#cccccc";
   this.light = undefined;
+  this.edges = [];
+  this.dWeight = 0;
 }
 
 DepthKit.Face.prototype.isBackface = function () {
@@ -51,7 +52,7 @@ DepthKit.Face.prototype.isBehindCamera = function () {
 }
 
 DepthKit.Face.prototype.getDepth = function () {
-  return Math.min(this.a.d, this.b.d, this.c.d);
+  return Math.min(this.a.d - this.dWeight, this.b.d - this.dWeight, this.c.d - this.dWeight);
 }
 
 DepthKit.faceSort = function ( a, b ) {
@@ -89,15 +90,9 @@ DepthKit.Face.prototype.getLightFactor = function () {
     y:-((ab.x * bc.z) - (ab.z * bc.x)),
     z:  (ab.x * bc.y) - (ab.y * bc.x)
   };
-  var dotProd = norm.x * this.light.x +
-                norm.y * this.light.y +
-                norm.z * this.light.z,
-      normMag = Math.sqrt(norm.x * norm.x +
-                          norm.y * norm.y +
-                          norm.z * norm.z),
-      lightMag = Math.sqrt(this.light.x * this.light.x +
-                           this.light.y * this.light.y +
-                           this.light.z * this.light.z);
+  var dotProd = (norm.x * this.light.x) + (norm.y * this.light.y) + (norm.z * this.light.z),
+      normMag = Math.sqrt((norm.x * norm.x) + (norm.y * norm.y) + (norm.z * norm.z)),
+      lightMag = Math.sqrt((this.light.x * this.light.x) + (this.light.y * this.light.y) + (this.light.z * this.light.z));
   
   return (Math.acos(dotProd / (normMag * lightMag)) / Math.PI) * this.light.brightness;
 }
@@ -125,8 +120,6 @@ DepthKit.SceneObject =  function ( x, y ,z ) {
   this.scaleMY = 1;
   this.scaleMZ = 1;
 }
-
-DepthKit.SceneObject.prototype.type = "SceneObject";
 
 DepthKit.SceneObject.prototype.setScene = function ( scene ) {
   this.scene = scene;
@@ -157,11 +150,8 @@ DepthKit.SceneObject.prototype.getGlobalZ = function () {
 }
 
 DepthKit.SceneObject.prototype.initM = function () { }
-
 DepthKit.SceneObject.prototype.rotateM = function () { }
-
 DepthKit.SceneObject.prototype.scaleM = function () { }
-
 DepthKit.SceneObject.prototype.translateM = function () { }
 
 DepthKit.Mesh = function ( x, y, z ) {
@@ -176,8 +166,6 @@ DepthKit.Mesh = function ( x, y, z ) {
 
 DepthKit.Mesh.prototype = new DepthKit.SceneObject();
 DepthKit.Mesh.prototype.constructor = DepthKit.Mesh;
-DepthKit.Mesh.prototype.upper = DepthKit.SceneObject.prototype;
-DepthKit.Mesh.prototype.type = "Mesh";
 
 DepthKit.Mesh.prototype.addVertex = function ( x, y, z ) {
   this.vertices.push(new DepthKit.Vertex(x, y, z));
@@ -204,6 +192,20 @@ DepthKit.Mesh.prototype.applyFillcolor = function ( color ) {
 DepthKit.Mesh.prototype.applyLight = function ( light ) {
   for ( var f = 0; f < this.faces.length; f++ ) {
     this.faces[f].light = light;
+  }
+  return this;
+}
+
+DepthKit.Mesh.prototype.mergeEdgesWithFaces = function () {
+  for ( var f = 0; f < this.faces.length; f++ ) {
+    for ( var e = 0; e < this.edges.length; e++ ) {
+      if ( (this.edges[e].u === this.faces[f].a && (this.edges[e].v === this.faces[f].b || this.edges[e].v === this.faces[f].c)) 
+        || (this.edges[e].u === this.faces[f].b && (this.edges[e].v === this.faces[f].a || this.edges[e].v === this.faces[f].c))
+        || (this.edges[e].u === this.faces[f].c && (this.edges[e].v === this.faces[f].a || this.edges[e].v === this.faces[f].b)) ) {
+            this.edges[e].faces.push(this.faces[f]);
+            this.faces[f].edges.push(this.edges[e]);
+      }
+    }
   }
   return this;
 }
@@ -269,7 +271,6 @@ DepthKit.meshSort = function ( a, b ) {
 DepthKit.Mesh.prototype.draw = function ( context ) {
   context.save();
   // draw faces
-  context.lineWidth = 1;
   this.faces.sort(DK.faceSort);
   for ( var f = 0; f < this.faces.length; f++ ) {
     if(!this.faces[f].isBackface() && !this.faces[f].isBehindCamera()){
@@ -280,8 +281,19 @@ DepthKit.Mesh.prototype.draw = function ( context ) {
       context.lineTo(this.faces[f].a.px, this.faces[f].a.py);
       context.closePath();
       context.fillStyle = context.strokeStyle = this.faces[f].getAdjustedColor();
+      context.lineWidth = 1;
       context.fill();
       context.stroke();
+      if ( this.faces[f].edges.length ) {
+        context.strokeStyle = this.strokeColor;
+        context.lineWidth = this.strokeWidth;
+        context.beginPath();
+        for ( var l = 0; l < this.faces[f].edges.length; l++ ) {
+          context.moveTo(this.faces[f].edges[l].u.px, this.faces[f].edges[l].u.py);
+          context.lineTo(this.faces[f].edges[l].v.px, this.faces[f].edges[l].v.py);
+        }
+        context.stroke();
+      }
     }
   }
   // draw edges
@@ -289,7 +301,7 @@ DepthKit.Mesh.prototype.draw = function ( context ) {
   context.lineWidth = this.strokeWidth;
   context.beginPath();
   for ( var e = 0; e < this.edges.length; e++ ) {
-    if(!this.edges[e].isBehindCamera()){
+    if(this.edges[e].faces.length === 0 && !this.edges[e].isBehindCamera()){
       context.moveTo(this.edges[e].u.px, this.edges[e].u.py);
       context.lineTo(this.edges[e].v.px, this.edges[e].v.py);
     }
@@ -365,8 +377,6 @@ DepthKit.Container =  function ( x, y ,z ) {
 
 DepthKit.Container.prototype = new DepthKit.SceneObject();
 DepthKit.Container.prototype.constructor = DepthKit.Container;
-DepthKit.Container.prototype.upper = DepthKit.SceneObject.prototype;
-DepthKit.Container.prototype.type = "Container";
 
 DepthKit.Container.prototype.rotateX = function ( degrees ) {
   var cosA = Math.cos(degrees * DK.rad);
@@ -556,8 +566,6 @@ DepthKit.Scene = function () {
 
 DepthKit.Scene.prototype = new DepthKit.Container();
 DepthKit.Scene.prototype.constructor = DepthKit.Scene;
-DepthKit.Scene.prototype.upper = DepthKit.Container.prototype;
-DepthKit.Scene.prototype.type = "Scene";
 
 DepthKit.Scene.prototype.setScene = function ( scene ) { }
 
@@ -595,9 +603,9 @@ DepthKit.Camera = function () {
   this.y = 0;
   this.z = -650;
   // rotation of the camera
-  this.tx = 0;
-  this.ty = 0;
-  this.tz = 0;
+  this.rotationX = 0;
+  this.rotationY = 0;
+  this.rotationZ = 0;
   // focal point in 3d coords (viewers position relative to the display surface)
   this.ex = 0;
   this.ey = 0;
@@ -658,23 +666,31 @@ DepthKit.Fog = function ( color, depth ) {
       red = nColor >> 16,
       green = nColor >> 8 & 0xff,
       blue = nColor & 0xff;
-  this.aColor = "rgba(" + red + ", " + green + ", " + blue + ", 0.15)";
+  this.aColor = "rgba(" + red + ", " + green + ", " + blue + ", 0.20)";
   this.lastZ = this.depth;
+}
+
+DepthKit.Fog.prototype.init = function ( viewport ) {
+  viewport.context.save();
+  viewport.context.fillStyle = this.color;
+  viewport.context.fillRect(0,0,viewport.canvas.width, viewport.canvas.height);
+  viewport.context.restore();
 }
 
 DepthKit.Fog.prototype.update = function ( z, viewport ) {
   viewport.context.save();
   viewport.context.fillStyle = this.aColor;
   for ( this.lastZ = this.lastZ; (this.lastZ > z && this.lastZ > 0); this.lastZ -= this.depth/20 ) {
-    viewport.context.fillRect(0,0,viewport.canvas.width, viewport.canvas.height); 
+    viewport.context.fillRect(0,0,viewport.canvas.width, viewport.canvas.height);
   }
-  viewport.context.restore(); 
+  viewport.context.restore();
 }
 
 DepthKit.Fog.prototype.finish = function ( viewport ) {
   this.update(0, viewport);
   this.lastZ = this.depth;
 }
+
 DepthKit.Renderer = function ( viewport, scene, camera ) {
   this.scene = scene || new DeptKit.Scene();
   this.camera = camera || new DepthKit.Camera();
@@ -683,16 +699,19 @@ DepthKit.Renderer = function ( viewport, scene, camera ) {
 }
 
 DepthKit.Renderer.prototype.render = function () {
+  // create global 'shadow'-vertices
   this.scene.initM();
   this.scene.rotateM();
   //this.scene.scaleM();
   this.scene.translateM();
-  var cosX = Math.cos(this.camera.tx * DK.rad);
-  var sinX = Math.sin(this.camera.tx * DK.rad);
-  var cosY = Math.cos(this.camera.ty * DK.rad);
-  var sinY = Math.sin(this.camera.ty * DK.rad);
-  var cosZ = Math.cos(this.camera.tz * DK.rad);
-  var sinZ = Math.sin(this.camera.tz * DK.rad);
+  // projection
+  // http://en.wikipedia.org/wiki/3D_projection
+  var cosX = Math.cos(this.camera.rotationX * DK.rad);
+  var sinX = Math.sin(this.camera.rotationX * DK.rad);
+  var cosY = Math.cos(this.camera.rotationY * DK.rad);
+  var sinY = Math.sin(this.camera.rotationY * DK.rad);
+  var cosZ = Math.cos(this.camera.rotationZ * DK.rad);
+  var sinZ = Math.sin(this.camera.rotationZ * DK.rad);
   for ( var m = 0; m < this.scene.meshes.length; m++ ) {
     this.scene.meshes[m].d = 0xffffff;
     for ( var v = 0; v < this.scene.meshes[m].vertices.length; v++ ) {
@@ -708,31 +727,31 @@ DepthKit.Renderer.prototype.render = function () {
       this.scene.meshes[m].vertices[v].px = this.viewport.vpX + (newX - this.camera.ex) * (this.camera.ez / newZ);
       this.scene.meshes[m].vertices[v].py = this.viewport.vpY + (newY - this.camera.ey) * (this.camera.ez / newZ);
       this.scene.meshes[m].vertices[v].pz = newZ;
+      // Euler distance for sorting
       this.scene.meshes[m].vertices[v].d = Math.sqrt(oldX * oldX + oldY * oldY + oldZ * oldZ);
       this.scene.meshes[m].d = Math.min(this.scene.meshes[m].d, this.scene.meshes[m].vertices[v].d);
     }
   }
   this.scene.meshes.sort(DK.meshSort);
-  for ( m = 0; m < this.scene.meshes.length; m++ ) {
-    this.scene.meshes[m].draw(this.viewport.context);
-    if ( this.fog !== undefined ) {
-      this.fog.update(this.scene.meshes[m].d, this.viewport);
-    }
-  }
   if ( this.fog !== undefined ) {
+    // fog
+    this.fog.init(this.viewport);
+    for ( m = 0; m < this.scene.meshes.length; m++ ) {
+      if (this.scene.meshes[m].d < this.fog.depth) {
+        this.fog.update(this.scene.meshes[m].d, this.viewport);
+        this.scene.meshes[m].draw(this.viewport.context);
+      }
+    }
     this.fog.finish(this.viewport);
+  } else {
+    // no fog
+    for ( m = 0; m < this.scene.meshes.length; m++ ) {
+      this.scene.meshes[m].draw(this.viewport.context);
+    }    
   }
 }
  
-/**
- * Normalize the browser animation API across implementations. This requests
- * the browser to schedule a repaint of the window for the next animation frame.
- * Checks for cross-browser support, and, failing to find it, falls back to setTimeout.
- * // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
- * @param {function}    callback  Function to call when it's time to update your animation for the next repaint.
- * @param {HTMLElement} element   Optional parameter specifying the element that visually bounds the entire animation.
- * @return {number} Animation frame request.
- */
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 if (!window.requestAnimationFrame) {
   window.requestAnimationFrame = (window.webkitRequestAnimationFrame ||
                                   window.mozRequestAnimationFrame ||
@@ -743,11 +762,6 @@ if (!window.requestAnimationFrame) {
                                   });
 }
 
-/**
- * Cancels an animation frame request.
- * Checks for cross-browser support, falls back to clearTimeout.
- * @param {number}  Animation frame request.
- */
 if (!window.cancelRequestAnimationFrame) {
   window.cancelRequestAnimationFrame = (window.cancelAnimationFrame ||
                                         window.webkitCancelRequestAnimationFrame ||
@@ -764,106 +778,156 @@ DepthKit.getTimer = function () {
 
 DepthKit.key = {};
 
-DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
-
-DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
-
-
-DepthKit.key.onKD = function (event) {
-  switch (event.keyCode) {           
-    case 38:
-      if(!DepthKit.key.down.UP){
-        DepthKit.key.pressed.UP = true;
-        DepthKit.key.down.UP = true;
-      }
-      break;
-    case 40:
-      if(!DepthKit.key.down.DOWN){
-        DepthKit.key.pressed.DOWN = true;
-        DepthKit.key.down.DOWN = true;
-      }
-      break;
-    case 37:
-      if(!DepthKit.key.down.LEFT){
-        DepthKit.key.pressed.LEFT = true;
-        DepthKit.key.down.LEFT = true;
-      }
-      break;
-    case 39:
-      if(!DepthKit.key.down.RIGHT){
-        DepthKit.key.pressed.RIGHT = true;
-        DepthKit.key.down.RIGHT = true;
-      }
-      break;
-    case 88:
-      DepthKit.key.down.X = true;
-      if(!DepthKit.key.down.X){
-        DepthKit.key.pressed.X = true;
+DepthKit.key.startCapturing = function () {
+  // captures arrow-keys, x, c and spacebar
+  // down is down untill up, pressed is like 'just pressed' and is intended to last only till the end of a frame 
+  DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
+  DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
+  // create a function to quickly unset the pressed
+  // needs to be called at the end of a frame of Engine.js
+  DepthKit.key.unsetPressed = function () {
+    DepthKit.key.pressed.UP = false;
+    DepthKit.key.pressed.DOWN = false;
+    DepthKit.key.pressed.LEFT = false;
+    DepthKit.key.pressed.RIGHT = false;
+    DepthKit.key.pressed.X = false;
+    DepthKit.key.pressed.C = false;
+    DepthKit.key.pressed.SPACE = false;
+  }
+  // create two references to functions that handle key up and down
+  DepthKit.key.onKD = function (e) {
+    switch (e.keyCode) {           
+      case 38:
+        if(!DepthKit.key.down.UP){
+          DepthKit.key.pressed.UP = true;
+          DepthKit.key.down.UP = true;
+        }
+        break;
+      case 40:
+        if(!DepthKit.key.down.DOWN){
+          DepthKit.key.pressed.DOWN = true;
+          DepthKit.key.down.DOWN = true;
+        }
+        break;
+      case 37:
+        if(!DepthKit.key.down.LEFT){
+          DepthKit.key.pressed.LEFT = true;
+          DepthKit.key.down.LEFT = true;
+        }
+        break;
+      case 39:
+        if(!DepthKit.key.down.RIGHT){
+          DepthKit.key.pressed.RIGHT = true;
+          DepthKit.key.down.RIGHT = true;
+        }
+        break;
+      case 88:
         DepthKit.key.down.X = true;
-      }
-      break;
-    case 67:
-      if(!DepthKit.key.down.C){
-        DepthKit.key.pressed.C = true;
-        DepthKit.key.down.C = true;
-      }
-      break;
-    case 32:
-      if(!DepthKit.key.down.SPACE){
-        DepthKit.key.pressed.SPACE = true;
-        DepthKit.key.down.SPACE = true;
-      }
-      break;
+        if(!DepthKit.key.down.X){
+          DepthKit.key.pressed.X = true;
+          DepthKit.key.down.X = true;
+        }
+        break;
+      case 67:
+        if(!DepthKit.key.down.C){
+          DepthKit.key.pressed.C = true;
+          DepthKit.key.down.C = true;
+        }
+        break;
+      case 32:
+        if(!DepthKit.key.down.SPACE){
+          DepthKit.key.pressed.SPACE = true;
+          DepthKit.key.down.SPACE = true;
+        }
+        break;
+    }
   }
-}
-  
-DepthKit.key.onKU = function (event) {
-  switch (event.keyCode) {           
-    case 38:
-      DepthKit.key.down.UP = false;
-      break;
-    case 40:
-      DepthKit.key.down.DOWN = false;
-      break;
-    case 37:
-      DepthKit.key.down.LEFT = false;
-      break;
-    case 39:
-      DepthKit.key.down.RIGHT = false;
-      break;
-    case 88:
-      DepthKit.key.down.X = false;
-      break;
-    case 67:
-      DepthKit.key.down.C = false;
-      break;
-    case 32:
-      DepthKit.key.down.SPACE = false;
-      break;
-  }
-}
-
-DepthKit.key.startCapturing = function () { 
+  DepthKit.key.onKU = function (e) {
+    switch (e.keyCode) {           
+      case 38:
+        DepthKit.key.down.UP = false;
+        break;
+      case 40:
+        DepthKit.key.down.DOWN = false;
+        break;
+      case 37:
+        DepthKit.key.down.LEFT = false;
+        break;
+      case 39:
+        DepthKit.key.down.RIGHT = false;
+        break;
+      case 88:
+        DepthKit.key.down.X = false;
+        break;
+      case 67:
+        DepthKit.key.down.C = false;
+        break;
+      case 32:
+        DepthKit.key.down.SPACE = false;
+        break;
+    }
+  } 
+  // add those as listeners to the window
   window.addEventListener('keydown', DepthKit.key.onKD, false);
   window.addEventListener('keyup', DepthKit.key.onKU, false);
+  // add a function to stop capturing
+  DepthKit.key.stopCapturing = function () { 
+    window.removeEventListener('keydown', DepthKit.key.onKD, false);
+    window.removeEventListener('keyup', DepthKit.key.onKU, false);
+    delete DepthKit.key.down;
+    delete DepthKit.key.pressed;
+    delete DepthKit.key.unsetPressed;
+    delete DepthKit.key.onKD;
+    delete DepthKit.key.onKU;
+  }
 }
 
-DepthKit.key.stopCapturing = function () { 
-  window.removeEventListener('keydown', DepthKit.key.onKD, false);
-  window.removeEventListener('keyup', DepthKit.key.onKU, false);
+DepthKit.mouse = {};
+
+DepthKit.mouse.attachTo = function (viewport) {
+  var mouse = {x: 0, y: 0, event: null};
+  viewport.mousemove = function (e) {
+    var x, y;
+    if (e.pageX || e.pageY) {
+      x = e.pageX;
+      y = e.pageY;
+    } else {
+      x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+      y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+    x -= viewport.canvas.offsetLeft;
+    y -= viewport.canvas.offsetTop;
+    mouse.x = x;
+    mouse.y = y;
+    mouse.event = e;
+  };
+  viewport.canvas.addEventListener('mousemove', viewport.mousemove, false);
+  viewport.touchmove = function (e) {
+    e.preventDefault();
+    var x, y;
+    if (e.touches[0].pageX || e.touches[0].pageY) {
+      x = e.touches[0].pageX;
+      y = e.touches[0].pageY;
+    } else {
+      x = e.touches[0].clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+      y = e.touches[0].clientY + document.body.scrollTop + document.documentElement.scrollTop;
+    }
+    x -= viewport.canvas.offsetLeft;
+    y -= viewport.canvas.offsetTop;
+    mouse.x = x;
+    mouse.y = y;
+    mouse.event = e;
+  };
+  viewport.canvas.addEventListener('touchmove', viewport.touchmove, false);
+  viewport.mouse = mouse;
 }
 
-/*
- * Best to call this at the end of frame
- */
-DepthKit.key.unsetPressed = function () {
-  DepthKit.key.pressed.UP = false;
-  DepthKit.key.pressed.DOWN = false;
-  DepthKit.key.pressed.LEFT = false;
-  DepthKit.key.pressed.RIGHT = false;
-  DepthKit.key.pressed.X = false;
-  DepthKit.key.pressed.C = false;
-  DepthKit.key.pressed.SPACE = false;
+DepthKit.mouse.detachFrom = function (viewport) {
+  viewport.canvas.removeEventListener('mousemove', viewport.mousemove, false);
+  viewport.canvas.removeEventListener('touchmove', viewport.touchmove, false);
+  delete viewport.mouse;
+  delete viewport.mousemove;
+  delete viewport.touchmove;
 }
 
 DepthKit.Engine = function () {
@@ -909,7 +973,9 @@ DepthKit.Engine.prototype.start = function () {
     // translate everything and draw it
     self.renderer.render();
     // unset pressed keys
-    DepthKit.key.unsetPressed();    
+    if ( DepthKit.key.pressed !== undefined ) {
+      DepthKit.key.unsetPressed();
+    }    
   }());
 }
 
@@ -917,61 +983,49 @@ DepthKit.Engine.prototype.stop = function () {
   window.cancelRequestAnimationFrame(frameID);
 }
 
-DepthKit.Cube = function ( size ) {
+DepthKit.Cube = function () {
   DepthKit.Mesh.call(this, 0, 0, 0);
-  this.size = size || 100;
-  this.halfSize = this.size/2;
-  this.addVertex(-this.halfSize,  this.halfSize, -this.halfSize);//0 // front left top
-  this.addVertex( this.halfSize,  this.halfSize, -this.halfSize);//1 // front right top
-  this.addVertex( this.halfSize, -this.halfSize, -this.halfSize);//2 // front right bottom
-  this.addVertex(-this.halfSize, -this.halfSize, -this.halfSize);//3 // front left bottom
-  this.addVertex(-this.halfSize,  this.halfSize,  this.halfSize);//4 // back left top
-  this.addVertex( this.halfSize,  this.halfSize,  this.halfSize);//5 // back right top
-  this.addVertex( this.halfSize, -this.halfSize,  this.halfSize);//6 // back right bottom
-  this.addVertex(-this.halfSize, -this.halfSize,  this.halfSize);//7 // back left bottom
-  // top
-  this.addFace(this.vertices[1], this.vertices[5], this.vertices[4], "#ff0000");
+  var sizeX, sizeY, sizeZ;
+  switch (arguments.length) {
+    case 1:
+      sizeX = sizeY = sizeZ = arguments[0] / 2;
+      break;
+    case 2:
+      sizeX = sizeZ = arguments[0] / 2;
+      sizeY = arguments[1] / 2;
+      break;
+    case 3:
+      sizeX = arguments[0] / 2;
+      sizeY = arguments[1] / 2;
+      sizeZ = arguments[2] / 2;
+      break;
+    default:
+      sizeX = sizeY = sizeZ = 50;
+  }
+  this.addVertex(-sizeX,  sizeY, -sizeZ); //0 // front left bottom
+  this.addVertex( sizeX,  sizeY, -sizeZ); //1 // front right bottom
+  this.addVertex( sizeX, -sizeY, -sizeZ); //2 // front right top
+  this.addVertex(-sizeX, -sizeY, -sizeZ); //3 // front left top
+  this.addVertex(-sizeX,  sizeY,  sizeZ); //4 // back left bottom
+  this.addVertex( sizeX,  sizeY,  sizeZ); //5 // back right bottom
+  this.addVertex( sizeX, -sizeY,  sizeZ); //6 // back right top
+  this.addVertex(-sizeX, -sizeY,  sizeZ); //7 // back left top
+  this.addFace(this.vertices[1], this.vertices[5], this.vertices[4], "#ff0000"); // bottom
   this.addFace(this.vertices[0], this.vertices[1], this.vertices[4], "#ff0000");
-  // bottom
-  this.addFace(this.vertices[6], this.vertices[2], this.vertices[3], "#00ff00");
+  this.addFace(this.vertices[6], this.vertices[2], this.vertices[3], "#00ff00"); // top
   this.addFace(this.vertices[7], this.vertices[6], this.vertices[3], "#00ff00");
-  // left
-  this.addFace(this.vertices[3], this.vertices[0], this.vertices[4], "#0000ff");
+  this.addFace(this.vertices[3], this.vertices[0], this.vertices[4], "#0000ff"); // left
   this.addFace(this.vertices[7], this.vertices[3], this.vertices[4], "#0000ff");
-  // right
-  this.addFace(this.vertices[2], this.vertices[5], this.vertices[1], "#ffff00");
+  this.addFace(this.vertices[2], this.vertices[5], this.vertices[1], "#ffff00"); // right
   this.addFace(this.vertices[6], this.vertices[5], this.vertices[2], "#ffff00");
-  // back
-  this.addFace(this.vertices[6], this.vertices[4], this.vertices[5], "#00ffff");
+  this.addFace(this.vertices[6], this.vertices[4], this.vertices[5], "#00ffff"); // back
   this.addFace(this.vertices[6], this.vertices[7], this.vertices[4], "#00ffff");
-  // front
-  this.addFace(this.vertices[2], this.vertices[1], this.vertices[0], "#ff00ff");
+  this.addFace(this.vertices[2], this.vertices[1], this.vertices[0], "#ff00ff"); // front
   this.addFace(this.vertices[3], this.vertices[2], this.vertices[0], "#ff00ff");
 }
 
 DepthKit.Cube.prototype = new DepthKit.Mesh();
 DepthKit.Cube.prototype.constructor = DepthKit.Cube;
-DepthKit.Cube.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.Cube.prototype.type = "Cube";
-
-DepthKit.Cube.prototype.draw = function ( context ) {
- this.faces.sort(DK.faceSort);
- context.save();
- for ( var f = 0; f < this.faces.length; f++ ) {
-   if(!this.faces[f].isBackface() && !this.faces[f].isBehindCamera()){
-     context.beginPath();
-     context.moveTo(this.faces[f].a.px, this.faces[f].a.py);
-     context.lineTo(this.faces[f].b.px, this.faces[f].b.py);
-     context.lineTo(this.faces[f].c.px, this.faces[f].c.py);
-     context.lineTo(this.faces[f].a.px, this.faces[f].a.py);
-     context.closePath();
-     context.fillStyle = context.strokeStyle = this.faces[f].getAdjustedColor();
-     context.fill();
-     context.stroke();
-   }
- }
- context.restore();
-}
 
 DepthKit.ObjModel = function ( ) {
   DepthKit.Mesh.call(this, 0, 0, 0);
@@ -980,8 +1034,6 @@ DepthKit.ObjModel = function ( ) {
 
 DepthKit.ObjModel.prototype = new DepthKit.Mesh();
 DepthKit.ObjModel.prototype.constructor = DepthKit.ObjModel;
-DepthKit.ObjModel.prototype.upper = DepthKit.Mesh.prototype;
-DepthKit.ObjModel.prototype.type = "ObjModel";
 
 DepthKit.ObjModel.prototype.parseFile = function ( file, scale ) {
   if ( file !== undefined ) {

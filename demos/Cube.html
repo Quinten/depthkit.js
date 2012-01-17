@@ -8,20 +8,20 @@
     </style>
   </head>
   <body>
-    <div id="header" style="width: 512px; height: 512px;"><!-- --></div>
+    <div id="header" style="width: 512px;height:512px;margin:0 auto;"><!-- --></div>
     <script src="../builds/depthkit.min.js"></script>
     <script>
       var engine = new DK.Engine();
-      engine.viewport.fillElement("header"); // fill a div that serves a s container for the canvas
+      engine.viewport.fillElement("header"); // fill a div with id 'header'
       engine.viewport.setBackgroundcolor("#000");
       
-      var mesh = engine.scene.addChild(new DK.Cube(100));// @param is the size of the cube
+      var mesh = engine.scene.addChild(new DK.Cube(100));
       mesh.step = function () { 
         this.rotateX(3).rotateY(1); 
       };
       
       engine.camera.step = function () {
-        this.tz += 1;
+        this.rotationZ += 1;
       };
       
       engine.start();

@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Starfield</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    
+    <!-- voor Mona, Ingeborg en Tom -->
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor("#e4e1ff");
+      engine.camera.z = -700;
+      engine.camera.y = 300;
+      engine.camera.rotationX = 25;
+      engine.light.x = 100;
+      
+      var root = new DK.Container();
+      root.y = -150;
+      engine.scene.addChild(root);
+      var rootLines = new DK.Mesh();
+      rootLines.addVertex(0,-1000,0);
+      rootLines.addVertex(0,0,0);
+      rootLines.addEdge();
+      rootLines.addVertex(300,0,0);
+      rootLines.addVertex(-300,0,0);
+      rootLines.addEdge();
+      root.addChild(rootLines);
+      
+      root.step = function () {
+        this.rotateY(-0.2);
+      };
+      
+      var branchRight = new DK.Container();
+      branchRight.x = 300;
+      root.addChild(branchRight);
+      var branchRightLines = new DK.Mesh();
+      branchRightLines.addVertex(0,0,0);
+      branchRightLines.addVertex(0,50,0);
+      branchRightLines.addEdge();
+      branchRightLines.addVertex(150,50,0);
+      branchRightLines.addVertex(-150,50,0);
+      branchRightLines.addEdge();
+      branchRight.addChild(branchRightLines);
+      
+      branchRight.step = function () {
+        this.rotateY(0.4);
+      };
+      
+      var branchLeft = new DK.Container();
+      branchLeft.x = -300;
+      root.addChild(branchLeft);
+      var branchLeftLines = new DK.Mesh();
+      branchLeftLines.addVertex(0,0,0);
+      branchLeftLines.addVertex(0,50,0);
+      branchLeftLines.addEdge();
+      branchLeftLines.addVertex(150,50,0);
+      branchLeftLines.addVertex(-150,50,0);
+      branchLeftLines.addEdge();
+      branchLeft.addChild(branchLeftLines);
+      
+      branchLeft.step = function () {
+        this.rotateY(0.4);
+      };      
+      
+      var stars = [];
+      for ( var i = 0; i < 4; i++ ) {
+        var star = new DK.ObjModel();
+        star.onParsed = function () {
+          this.applyLight(engine.light);
+          this.applyFillcolor("#ffffff");
+          this.rotateX(-90);
+          this.rotateY(Math.random()*360);
+          this.addVertex(0, -78, 0);
+          this.addVertex(0, -120, 0);
+          this.addEdge();
+          this.y = 170; 
+        };
+        star.parseFile("../demos/models/20facestar.obj", 32);
+        star.step = function () {
+          this.rotateY(-0.6);
+        };
+        stars.push(star);
+      }
+      
+      stars[0].x = 150;
+      branchRight.addChild(stars[0]);
+      stars[1].x = -150;
+      branchRight.addChild(stars[1]);
+      stars[2].x = 150;
+      branchLeft.addChild(stars[2]);
+      stars[3].x = -150;
+      branchLeft.addChild(stars[3]);
+      
+      branchRight.rotateY(Math.random()*360);
+      branchLeft.rotateY(Math.random()*360);
+      
+      engine.start();
+    </script>
+  </body>
+</html>
