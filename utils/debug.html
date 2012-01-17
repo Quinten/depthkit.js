@@ -32,13 +32,19 @@
     <script>
       var engine = new DK.Engine();
       engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor('#ffffff');
       
       DK.key.startCapturing();
       DK.mouse.attachTo(engine.viewport);
       
-      var mesh = engine.scene.addChild(new DK.ObjModel());
-      mesh.onParsed = function () { this.applyLight(engine.light); };
-      mesh.parseFile("../demos/models/spaceship.obj", 50);
+      //var mesh = engine.scene.addChild(new DK.ObjModel());
+      //mesh.onParsed = function () { this.applyLight(engine.light); };
+      //mesh.parseFile("../demos/models/spaceship.obj", 50);
+      
+      var mesh = engine.scene.addChild(new DK.Cube(100, 25, 400));
+      
+      //mesh.rotateY(45);
+      
       mesh.step = function () {
         if ( DK.key.down ) {
           if ( DK.key.down.UP ) {

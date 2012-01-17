@@ -4,6 +4,8 @@ DepthKit.Face = function ( a, b, c, color ) {
   this.c = c || new DepthKit.Vertex();
   this.color = color || "#cccccc";
   this.light = undefined;
+  this.edges = [];
+  this.dWeight = 0;
 }
 
 DepthKit.Face.prototype.isBackface = function () {
@@ -19,7 +21,7 @@ DepthKit.Face.prototype.isBehindCamera = function () {
 }
 
 DepthKit.Face.prototype.getDepth = function () {
-  return Math.min(this.a.d, this.b.d, this.c.d);
+  return Math.min(this.a.d - this.dWeight, this.b.d - this.dWeight, this.c.d - this.dWeight);
 }
 
 DepthKit.faceSort = function ( a, b ) {
@@ -57,15 +59,9 @@ DepthKit.Face.prototype.getLightFactor = function () {
     y:-((ab.x * bc.z) - (ab.z * bc.x)),
     z:  (ab.x * bc.y) - (ab.y * bc.x)
   };
-  var dotProd = norm.x * this.light.x +
-                norm.y * this.light.y +
-                norm.z * this.light.z,
-      normMag = Math.sqrt(norm.x * norm.x +
-                          norm.y * norm.y +
-                          norm.z * norm.z),
-      lightMag = Math.sqrt(this.light.x * this.light.x +
-                           this.light.y * this.light.y +
-                           this.light.z * this.light.z);
+  var dotProd = (norm.x * this.light.x) + (norm.y * this.light.y) + (norm.z * this.light.z),
+      normMag = Math.sqrt((norm.x * norm.x) + (norm.y * norm.y) + (norm.z * norm.z)),
+      lightMag = Math.sqrt((this.light.x * this.light.x) + (this.light.y * this.light.y) + (this.light.z * this.light.z));
   
   return (Math.acos(dotProd / (normMag * lightMag)) / Math.PI) * this.light.brightness;
 }

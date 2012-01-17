@@ -40,6 +40,20 @@ DepthKit.Mesh.prototype.applyLight = function ( light ) {
   return this;
 }
 
+DepthKit.Mesh.prototype.mergeEdgesWithFaces = function () {
+  for ( var f = 0; f < this.faces.length; f++ ) {
+    for ( var e = 0; e < this.edges.length; e++ ) {
+      if ( (this.edges[e].u === this.faces[f].a && (this.edges[e].v === this.faces[f].b || this.edges[e].v === this.faces[f].c)) 
+        || (this.edges[e].u === this.faces[f].b && (this.edges[e].v === this.faces[f].a || this.edges[e].v === this.faces[f].c))
+        || (this.edges[e].u === this.faces[f].c && (this.edges[e].v === this.faces[f].a || this.edges[e].v === this.faces[f].b)) ) {
+            this.edges[e].faces.push(this.faces[f]);
+            this.faces[f].edges.push(this.edges[e]);
+      }
+    }
+  }
+  return this;
+}
+
 DepthKit.Mesh.prototype.rotateX = function ( degrees ) {
   var cosA = Math.cos(degrees * DK.rad);
   var sinA = Math.sin(degrees * DK.rad);
@@ -101,7 +115,6 @@ DepthKit.meshSort = function ( a, b ) {
 DepthKit.Mesh.prototype.draw = function ( context ) {
   context.save();
   // draw faces
-  context.lineWidth = 1;
   this.faces.sort(DK.faceSort);
   for ( var f = 0; f < this.faces.length; f++ ) {
     if(!this.faces[f].isBackface() && !this.faces[f].isBehindCamera()){
@@ -112,8 +125,19 @@ DepthKit.Mesh.prototype.draw = function ( context ) {
       context.lineTo(this.faces[f].a.px, this.faces[f].a.py);
       context.closePath();
       context.fillStyle = context.strokeStyle = this.faces[f].getAdjustedColor();
+      context.lineWidth = 1;
       context.fill();
       context.stroke();
+      if ( this.faces[f].edges.length ) {
+        context.strokeStyle = this.strokeColor;
+        context.lineWidth = this.strokeWidth;
+        context.beginPath();
+        for ( var l = 0; l < this.faces[f].edges.length; l++ ) {
+          context.moveTo(this.faces[f].edges[l].u.px, this.faces[f].edges[l].u.py);
+          context.lineTo(this.faces[f].edges[l].v.px, this.faces[f].edges[l].v.py);
+        }
+        context.stroke();
+      }
     }
   }
   // draw edges
@@ -121,7 +145,7 @@ DepthKit.Mesh.prototype.draw = function ( context ) {
   context.lineWidth = this.strokeWidth;
   context.beginPath();
   for ( var e = 0; e < this.edges.length; e++ ) {
-    if(!this.edges[e].isBehindCamera()){
+    if(this.edges[e].faces.length === 0 && !this.edges[e].isBehindCamera()){
       context.moveTo(this.edges[e].u.px, this.edges[e].u.py);
       context.lineTo(this.edges[e].v.px, this.edges[e].v.py);
     }

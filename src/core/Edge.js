@@ -1,6 +1,7 @@
 DepthKit.Edge = function ( u, v ) {
   this.u = u || new DepthKit.Vertex();
   this.v = v || new DepthKit.Vertex();
+  this.faces = [];
 }
 
 DepthKit.Edge.prototype.isBehindCamera = function () {

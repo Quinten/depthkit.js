@@ -9,4 +9,10 @@ do
 cat $file >> ../builds/depthkit.js
 done
 
-java -jar ./compiler/compiler.jar --js ../builds/depthkit.js --js_output_file ../builds/depthkit.min.js
+java -jar ./compiler/compiler.jar --js ../builds/depthkit.js --js_output_file ../builds/temp.js
+
+echo '/* https://github.com/Quinten/depthkit.js */' > ../builds/depthkit.min.js
+
+cat ../builds/temp.js >> ../builds/depthkit.min.js
+
+rm ../builds/temp.js

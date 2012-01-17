@@ -1,7 +1,5 @@
 /**
- * depthkit.js 
- * 3d engine for the canvas 2d context and the javascript console
- * by Quinten Clause
+ * depthkit.js
  * https://github.com/Quinten/depthkit.js
  */
 

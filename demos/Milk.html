@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Milk</title>
+    <style>
+      body { margin: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="../builds/depthkit.min.js"></script>
+    <script>
+      var engine = new DK.Engine();
+      engine.viewport.fillPage();
+      engine.viewport.setBackgroundcolor("#ddeeff");
+      engine.camera.z = -1000;
+      
+      var mesh = engine.scene.addChild(new DK.ObjModel());
+      mesh.onParsed = function () {
+        this.rotateZ(180);
+        // sides
+        this.addEdge(this.faces[0].a, this.faces[0].b);
+        this.addEdge(this.faces[0].b, this.faces[0].c);
+        this.addEdge(this.faces[1].a, this.faces[1].c);
+        this.addEdge(this.faces[1].b, this.faces[1].c);
+        this.addEdge(this.faces[2].a, this.faces[2].b);
+        this.addEdge(this.faces[2].b, this.faces[2].c);
+        this.addEdge(this.faces[3].a, this.faces[3].b);
+        this.addEdge(this.faces[3].c, this.faces[3].a);
+        // top
+        this.addEdge(this.faces[4].c, this.faces[4].b);
+        this.addEdge(this.faces[4].b, this.faces[4].a);
+        this.addEdge(this.faces[5].b, this.faces[5].a);
+        this.addEdge(this.faces[6].c, this.faces[6].b);
+        this.addEdge(this.faces[7].c, this.faces[7].a);
+        this.addEdge(this.faces[7].b, this.faces[7].a);
+        this.faces[4].dWeight = this.faces[5].dWeight = this.faces[6].dWeight = this.faces[7].dWeight = 1;
+        // bottom
+        this.addEdge(this.faces[8].a, this.faces[8].b);
+        this.addEdge(this.faces[11].a, this.faces[11].b);
+        // litske
+        // 20, 21
+        this.addFace(this.faces[20].c, this.faces[20].b, this.faces[20].a);
+        this.addFace(this.faces[21].c, this.faces[21].b, this.faces[21].a);    
+        this.addEdge(this.faces[20].c, this.faces[20].b);
+        this.addEdge(this.faces[20].a, this.faces[20].b);
+        this.addEdge(this.faces[21].a, this.faces[21].b);
+        this.addEdge(this.faces[21].c, this.faces[21].a);
+        // inward
+        this.addEdge(this.faces[22].a, this.faces[22].c);
+        this.addEdge(this.faces[23].a, this.faces[23].c);
+        this.addEdge(this.faces[23].b, this.faces[23].c);
+        this.addEdge(this.faces[24].a, this.faces[24].b);
+        this.addEdge(this.faces[25].a, this.faces[25].b);
+        // inward
+        this.addEdge(this.faces[26].a, this.faces[26].b);
+        this.addEdge(this.faces[26].b, this.faces[26].c);
+        this.addEdge(this.faces[27].a, this.faces[27].b);
+        this.addEdge(this.faces[28].a, this.faces[28].b);
+        this.addEdge(this.faces[28].a, this.faces[28].c);
+        
+        this.mergeEdgesWithFaces();
+        this.applyFillcolor("#ffffff");
+        this.strokeColor = "#00788a";
+        this.strokeWidth = 2;
+        
+        engine.start(); 
+      };
+      
+      mesh.parseFile("../demos/models/milk.obj", 100);
+      
+      DK.mouse.attachTo(engine.viewport);
+      mesh.step = function () {
+        this.rotationY += (engine.viewport.mouse.x - engine.viewport.vpX) * .01;
+        this.rotationX += (engine.viewport.mouse.y - engine.viewport.vpY) * .01;
+      };
+
+    </script>
+  </body>
+</html>

@@ -2,12 +2,11 @@ DepthKit.key = {};
 
 DepthKit.key.startCapturing = function () {
   // captures arrow-keys, x, c and spacebar
-  // down is down untill up
-  // pressed is like 'just pressed' and is intended to last only till the end of a frame 
+  // down is down untill up, pressed is like 'just pressed' and is intended to last only till the end of a frame 
   DepthKit.key.down = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
   DepthKit.key.pressed = {UP: false, DOWN: false, LEFT: false, RIGHT: false, X: false, C: false, SPACE: false};
   // create a function to quickly unset the pressed
-  // gets called at the end of a frame of Engine.js
+  // needs to be called at the end of a frame of Engine.js
   DepthKit.key.unsetPressed = function () {
     DepthKit.key.pressed.UP = false;
     DepthKit.key.pressed.DOWN = false;

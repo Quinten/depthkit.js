@@ -12,10 +12,10 @@
     <script src="../builds/depthkit.min.js"></script>
     <script>
       var engine = new DK.Engine();
-      engine.viewport.fillElement("header"); // fill a div that serves a s container for the canvas
+      engine.viewport.fillElement("header"); // fill a div with id 'header'
       engine.viewport.setBackgroundcolor("#000");
       
-      var mesh = engine.scene.addChild(new DK.Cube(100));// @param is the size of the cube
+      var mesh = engine.scene.addChild(new DK.Cube(100));
       mesh.step = function () { 
         this.rotateX(3).rotateY(1); 
       };
